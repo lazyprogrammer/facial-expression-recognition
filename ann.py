@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from util import getData, softmax, cost, y2indicator, error_rate, relu
+from util import getData, softmax, cost2, y2indicator, error_rate, relu
 from sklearn.utils import shuffle
 
 
@@ -12,7 +12,7 @@ class ANN(object):
     def fit(self, X, Y, learning_rate=10e-8, reg=10e-12, epochs=10000, show_fig=False):
         X, Y = shuffle(X, Y)
         Xvalid, Yvalid = X[-1000:], Y[-1000:]
-        Tvalid = y2indicator(Yvalid)
+        # Tvalid = y2indicator(Yvalid)
         X, Y = X[:-1000], Y[:-1000]
 
         N, D = X.shape
@@ -30,14 +30,16 @@ class ANN(object):
                 pY, Z = self.forward(X)
 
                 # gradient descent step
-                self.W2 -= learning_rate*(Z.T.dot(pY - T) + reg*self.W2)
-                self.b2 -= learning_rate*((pY - T).sum(axis=0) + reg*self.b2)
-                self.W1 -= learning_rate*(X.T.dot((pY - T).dot(self.W2.T) * (Z > 0)) + reg*self.W1)
-                self.b1 -= learning_rate*(np.sum((pY - T).dot(self.W2.T) * (Z > 0), axis=0) + reg*self.b1)
+                pY_T = pY - T
+                self.W2 -= learning_rate*(Z.T.dot(pY_T) + reg*self.W2)
+                self.b2 -= learning_rate*(pY_T.sum(axis=0) + reg*self.b2)
+                dZ = pY_T.dot(self.W2.T) * (Z > 0)
+                self.W1 -= learning_rate*(X.T.dot(dZ) + reg*self.W1)
+                self.b1 -= learning_rate*(dZ.sum(axis=0) + reg*self.b1)
 
                 if i % 10 == 0:
-                    pYvalid = self.forward(Xvalid)
-                    c = cost(Tvalid, pYvalid)
+                    pYvalid, _ = self.forward(Xvalid)
+                    c = cost2(Yvalid, pYvalid)
                     costs.append(c)
                     e = error_rate(Yvalid, np.argmax(pYvalid, axis=1))
                     print "i:", i, "cost:", c, "error:", e
@@ -52,7 +54,7 @@ class ANN(object):
 
     def forward(self, X):
     	Z = relu(X.dot(self.W1) + self.b1)
-        return softmax(Z.dot(self.W1) + self.b2), Z
+        return softmax(Z.dot(self.W2) + self.b2), Z
 
     def predict(self, X):
         pY, _ = self.forward(X)

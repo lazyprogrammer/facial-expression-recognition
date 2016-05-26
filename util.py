@@ -2,6 +2,12 @@ import numpy as np
 import pandas as pd
 
 
+def init_weight_and_bias(M1, M2):
+    W = np.random.randn(M1, M2) / np.sqrt(M1 + M2)
+    b = np.zeros(M2)
+    return W, b
+
+
 def relu(x):
     return x * (x > 0)
 
@@ -21,6 +27,13 @@ def sigmoid_cost(T, Y):
 
 def cost(T, Y):
     return -(T*np.log(Y)).sum()
+
+
+def cost2(T, Y):
+    # same as cost(), just uses the targets to index Y
+    # instead of multiplying by a large indicator matrix with mostly 0s
+    N = len(T)
+    return -np.log(Y[np.arange(N), T]).sum()
 
 
 def error_rate(targets, predictions):
