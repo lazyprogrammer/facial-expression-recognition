@@ -23,16 +23,21 @@ class ANN(object):
         best_validation_error = 1
         for i in xrange(epochs):
                 # forward propagation and cost calculation
-                pY = self.forward(X)
+                pY, Z = self.forward(X)
 
                 # gradient descent step
-                self.W2 -= learning_rate*(Z.T.dot(pY - T) + reg*self.W2)
-                self.b2 -= learning_rate*((pY - T).sum() + reg*self.b2)
-                self.W1 -= learning_rate*(X.T.dot((pY - T).dot(self.W2.T) * (Z > 0)) + reg*self.W1)
-                self.b1 -= learning_rate*(np.sum((pY - T).dot(self.W2.T) * (Z > 0)) + reg*self.b1)
+                pY_Y = pY - Y
+                self.W2 -= learning_rate*(Z.T.dot(pY_Y) + reg*self.W2)
+                self.b2 -= learning_rate*((pY_Y).sum() + reg*self.b2)
+
+                # print "(pY_Y).dot(self.W2.T) shape:", (pY_Y).dot(self.W2.T).shape
+                # print "Z shape:", Z.shape 
+                dZ = np.outer(pY_Y, self.W2) * (Z > 0)
+                self.W1 -= learning_rate*(X.T.dot(dZ) + reg*self.W1)
+                self.b1 -= learning_rate*(np.sum(dZ, axis=0) + reg*self.b1)
                 
                 if i % 20 == 0:
-                    pYvalid = self.forward(Xvalid)
+                    pYvalid, _ = self.forward(Xvalid)
                     c = sigmoid_cost(Yvalid, pYvalid)
                     costs.append(c)
                     e = error_rate(Yvalid, np.round(pYvalid))
@@ -48,7 +53,7 @@ class ANN(object):
 
     def forward(self, X):
     	Z = relu(X.dot(self.W1) + self.b1)
-        return sigmoid(Z.dot(self.W2) + self.b2)
+        return sigmoid(Z.dot(self.W2) + self.b2), Z
 
 
     def predict(self, X):
