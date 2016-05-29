@@ -9,7 +9,7 @@ class ANN(object):
     def __init__(self, M):
         self.M = M
 
-    def fit(self, X, Y, learning_rate=10e-8, reg=10e-12, epochs=10000, show_fig=False):
+    def fit(self, X, Y, learning_rate=10e-6, reg=10e-1, epochs=10000, show_fig=False):
         X, Y = shuffle(X, Y)
         Xvalid, Yvalid = X[-1000:], Y[-1000:]
         # Tvalid = y2indicator(Yvalid)
@@ -33,7 +33,8 @@ class ANN(object):
                 pY_T = pY - T
                 self.W2 -= learning_rate*(Z.T.dot(pY_T) + reg*self.W2)
                 self.b2 -= learning_rate*(pY_T.sum(axis=0) + reg*self.b2)
-                dZ = pY_T.dot(self.W2.T) * (Z > 0)
+                # dZ = pY_T.dot(self.W2.T) * (Z > 0) # relu
+                dZ = pY_T.dot(self.W2.T) * (1 - Z*Z) # tanh
                 self.W1 -= learning_rate*(X.T.dot(dZ) + reg*self.W1)
                 self.b1 -= learning_rate*(dZ.sum(axis=0) + reg*self.b1)
 
@@ -53,7 +54,8 @@ class ANN(object):
 
 
     def forward(self, X):
-    	Z = relu(X.dot(self.W1) + self.b1)
+    	# Z = relu(X.dot(self.W1) + self.b1)
+    	Z = np.tanh(X.dot(self.W1) + self.b1)
         return softmax(Z.dot(self.W2) + self.b2), Z
 
     def predict(self, X):

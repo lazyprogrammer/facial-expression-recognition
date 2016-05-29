@@ -8,7 +8,7 @@ class ANN(object):
     def __init__(self, M):
         self.M = M
 
-    def fit(self, X, Y, learning_rate=10e-7, reg=0*10e-22, epochs=120000, show_fig=False):
+    def fit(self, X, Y, learning_rate=10e-7, reg=10e1, epochs=120000, show_fig=False):
         X, Y = shuffle(X, Y)
         Xvalid, Yvalid = X[-1000:], Y[-1000:]
         X, Y = X[:-1000], Y[:-1000]
@@ -32,7 +32,8 @@ class ANN(object):
 
                 # print "(pY_Y).dot(self.W2.T) shape:", (pY_Y).dot(self.W2.T).shape
                 # print "Z shape:", Z.shape 
-                dZ = np.outer(pY_Y, self.W2) * (Z > 0)
+                # dZ = np.outer(pY_Y, self.W2) * (Z > 0)
+                dZ = np.outer(pY_Y, self.W2) * (1 - Z*Z)
                 self.W1 -= learning_rate*(X.T.dot(dZ) + reg*self.W1)
                 self.b1 -= learning_rate*(np.sum(dZ, axis=0) + reg*self.b1)
                 
@@ -52,7 +53,8 @@ class ANN(object):
 
 
     def forward(self, X):
-    	Z = relu(X.dot(self.W1) + self.b1)
+    	# Z = relu(X.dot(self.W1) + self.b1)
+        Z = np.tanh(X.dot(self.W1) + self.b1)
         return sigmoid(Z.dot(self.W2) + self.b2), Z
 
 
@@ -75,7 +77,7 @@ def main():
     X = np.vstack([X0, X1])
     Y = np.array([0]*len(X0) + [1]*len(X1))
     
-    model = ANN(3000)
+    model = ANN(100)
     model.fit(X, Y, show_fig=True)
 
 if __name__ == '__main__':
