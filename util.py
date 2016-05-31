@@ -5,7 +5,12 @@ import pandas as pd
 def init_weight_and_bias(M1, M2):
     W = np.random.randn(M1, M2) / np.sqrt(M1 + M2)
     b = np.zeros(M2)
-    return W, b
+    return W.astype(np.float32), b.astype(np.float32)
+
+
+def init_filter(shape, poolsz):
+    w = np.random.randn(*shape) / np.sqrt(np.prod(shape[1:]) + shape[0]*np.prod(shape[2:] / np.prod(poolsz)))
+    return w.astype(np.float32)
 
 
 def relu(x):
@@ -73,6 +78,14 @@ def getData(balance_ones=True):
         X = np.vstack([X0, X1])
         Y = np.concatenate((Y0, [1]*len(X1)))
 
+    return X, Y
+
+
+def getImageData():
+    X, Y = getData()
+    N, D = X.shape
+    d = int(np.sqrt(D))
+    X = X.reshape(N, 1, d, d)
     return X, Y
 
 
