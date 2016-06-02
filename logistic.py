@@ -24,21 +24,21 @@ class LogisticModel(object):
         costs = []
         best_validation_error = 1
         for i in xrange(epochs):
-                # forward propagation and cost calculation
-                pY = self.forward(X)
+            # forward propagation and cost calculation
+            pY = self.forward(X)
 
-                # gradient descent step
-                self.W -= learning_rate*(X.T.dot(pY - T) + reg*self.W)
-                self.b -= learning_rate*((pY - T).sum(axis=0) + reg*self.b)
+            # gradient descent step
+            self.W -= learning_rate*(X.T.dot(pY - T) + reg*self.W)
+            self.b -= learning_rate*((pY - T).sum(axis=0) + reg*self.b)
 
-                if i % 10 == 0:
-                    pYvalid = self.forward(Xvalid)
-                    c = cost(Tvalid, pYvalid)
-                    costs.append(c)
-                    e = error_rate(Yvalid, np.argmax(pYvalid, axis=1))
-                    print "i:", i, "cost:", c, "error:", e
-                    if e < best_validation_error:
-                        best_validation_error = e
+            if i % 10 == 0:
+                pYvalid = self.forward(Xvalid)
+                c = cost(Tvalid, pYvalid)
+                costs.append(c)
+                e = error_rate(Yvalid, np.argmax(pYvalid, axis=1))
+                print "i:", i, "cost:", c, "error:", e
+                if e < best_validation_error:
+                    best_validation_error = e
         print "best_validation_error:", best_validation_error
 
         if show_fig:
@@ -63,7 +63,7 @@ def main():
     
     model = LogisticModel()
     model.fit(X, Y, show_fig=True)
-    model.score(X, Y)
+    print model.score(X, Y)
     # scores = cross_val_score(model, X, Y, cv=5)
     # print "score mean:", np.mean(scores), "stdev:", np.std(scores)
 
