@@ -3,7 +3,7 @@ import theano
 import theano.tensor as T
 import matplotlib.pyplot as plt
 
-from util import getData, getBinaryData, softmax, cost2, y2indicator, error_rate, relu, init_weight_and_bias
+from util import getData, getBinaryData, error_rate, relu, init_weight_and_bias
 from sklearn.utils import shuffle
 
 
@@ -25,7 +25,13 @@ class ANN(object):
     def __init__(self, hidden_layer_sizes):
         self.hidden_layer_sizes = hidden_layer_sizes
 
-    def fit(self, X, Y, learning_rate=10e-7, mu=0.99, decay=0.999, reg=10e-12, epochs=400, batch_sz=100, show_fig=False):
+    def fit(self, X, Y, learning_rate=10e-7, mu=0.99, decay=0.999, reg=10e-12, eps=10e-10, epochs=400, batch_sz=100, show_fig=False):
+        learning_rate = np.float32(learning_rate)
+        mu = np.float32(mu)
+        decay = np.float32(decay)
+        reg = np.float32(reg)
+        eps = np.float32(eps)
+
         # make a validation set
         X, Y = shuffle(X, Y)
         X = X.astype(np.float32)
@@ -54,13 +60,13 @@ class ANN(object):
             self.params += h.params
 
         # for momentum
-        dparams = [theano.shared(np.zeros(p.get_value().shape)) for p in self.params]
+        dparams = [theano.shared(np.zeros(p.get_value().shape, dtype=np.float32)) for p in self.params]
 
         # for rmsprop
-        cache = [theano.shared(np.zeros(p.get_value().shape)) for p in self.params]
+        cache = [theano.shared(np.zeros(p.get_value().shape, dtype=np.float32)) for p in self.params]
 
         # set up theano functions and variables
-        thX = T.matrix('X')
+        thX = T.fmatrix('X')
         thY = T.ivector('Y')
         pY = self.forward(thX)
 
@@ -71,11 +77,11 @@ class ANN(object):
         cost_predict_op = theano.function(inputs=[thX, thY], outputs=[cost, prediction])
 
         updates = [
-            (c, decay*c + (1-decay)*T.grad(cost, p)*T.grad(cost, p)) for p, c in zip(self.params, cache)
+            (c, decay*c + (np.float32(1)-decay)*T.grad(cost, p)*T.grad(cost, p)) for p, c in zip(self.params, cache)
         ] + [
-            (p, p + mu*dp - learning_rate*T.grad(cost, p)/T.sqrt(c + 10e-10)) for p, c, dp in zip(self.params, cache, dparams)
+            (p, p + mu*dp - learning_rate*T.grad(cost, p)/T.sqrt(c + eps)) for p, c, dp in zip(self.params, cache, dparams)
         ] + [
-            (dp, mu*dp - learning_rate*T.grad(cost, p)/T.sqrt(c + 10e-10)) for p, c, dp in zip(self.params, cache, dparams)
+            (dp, mu*dp - learning_rate*T.grad(cost, p)/T.sqrt(c + eps)) for p, c, dp in zip(self.params, cache, dparams)
         ]
 
         # momentum only

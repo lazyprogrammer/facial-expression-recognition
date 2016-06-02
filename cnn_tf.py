@@ -93,7 +93,7 @@ class CNN(object):
         for h in self.hidden_layers:
             self.params += h.params
 
-        # set up theano functions and variables
+        # set up tensorflow functions and variables
         tfX = tf.placeholder(tf.float32, shape=(None, d, d, c), name='X')
         tfY = tf.placeholder(tf.float32, shape=(None, K), name='Y')
         act = self.forward(tfX)

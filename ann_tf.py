@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
-from util import getData, getBinaryData, softmax, cost2, y2indicator, error_rate, relu, init_weight_and_bias
+from util import getData, getBinaryData, y2indicator, error_rate, init_weight_and_bias
 from sklearn.utils import shuffle
 
 
@@ -55,22 +55,15 @@ class ANN(object):
         for h in self.hidden_layers:
             self.params += h.params
 
-        # for momentum
-        # dparams = [theano.shared(np.zeros(p.get_value().shape)) for p in self.params]
-
-        # for rmsprop
-        # cache = [theano.shared(np.zeros(p.get_value().shape)) for p in self.params]
-
         # set up theano functions and variables
         tfX = tf.placeholder(tf.float32, shape=(None, D), name='X')
         tfT = tf.placeholder(tf.float32, shape=(None, K), name='T')
-        # tfT = tf.placeholder(tf.int32, shape=(None,), name='T')
         act = self.forward(tfX)
 
         rcost = reg*sum([tf.nn.l2_loss(p) for p in self.params])
         cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(act, tfT)) + rcost
         prediction = self.predict(tfX)
-        train_op = tf.train.RMSPropOptimizer(learning_rate, decay=0.99, momentum=0.9).minimize(cost)
+        train_op = tf.train.RMSPropOptimizer(learning_rate, decay=decay, momentum=mu).minimize(cost)
 
         n_batches = N / batch_sz
         costs = []

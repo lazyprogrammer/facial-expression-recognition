@@ -9,7 +9,7 @@ class ANN(object):
     def __init__(self, M):
         self.M = M
 
-    def fit(self, X, Y, learning_rate=10e-6, reg=10e-1, epochs=10000, show_fig=False):
+    def fit(self, X, Y, learning_rate=10e-7, reg=10e-7, epochs=10000, show_fig=False):
         X, Y = shuffle(X, Y)
         Xvalid, Yvalid = X[-1000:], Y[-1000:]
         # Tvalid = y2indicator(Yvalid)
@@ -70,7 +70,7 @@ class ANN(object):
 def main():
     X, Y = getData()
     
-    model = ANN(100)
+    model = ANN(500)
     model.fit(X, Y, show_fig=True)
     print model.score(X, Y)
     # scores = cross_val_score(model, X, Y, cv=5)
