@@ -9,7 +9,8 @@ class ANN(object):
     def __init__(self, M):
         self.M = M
 
-    def fit(self, X, Y, learning_rate=10e-8, reg=10e-7, epochs=10000, show_fig=False):
+    # learning rate 10e-6 is too large
+    def fit(self, X, Y, learning_rate=10e-7, reg=10e-7, epochs=10000, show_fig=False):
         X, Y = shuffle(X, Y)
         Xvalid, Yvalid = X[-1000:], Y[-1000:]
         # Tvalid = y2indicator(Yvalid)
@@ -54,8 +55,8 @@ class ANN(object):
 
 
     def forward(self, X):
-    	# Z = relu(X.dot(self.W1) + self.b1)
-    	Z = np.tanh(X.dot(self.W1) + self.b1)
+        # Z = relu(X.dot(self.W1) + self.b1)
+        Z = np.tanh(X.dot(self.W1) + self.b1)
         return softmax(Z.dot(self.W2) + self.b2), Z
 
     def predict(self, X):
@@ -70,7 +71,7 @@ class ANN(object):
 def main():
     X, Y = getData()
     
-    model = ANN(500)
+    model = ANN(200)
     model.fit(X, Y, reg=0, show_fig=True)
     print model.score(X, Y)
     # scores = cross_val_score(model, X, Y, cv=5)

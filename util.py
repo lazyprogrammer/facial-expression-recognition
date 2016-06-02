@@ -38,7 +38,7 @@ def cost2(T, Y):
     # same as cost(), just uses the targets to index Y
     # instead of multiplying by a large indicator matrix with mostly 0s
     N = len(T)
-    return -np.log(Y[np.arange(N), T]).sum()
+    return -np.log(Y[np.arange(N), T]).mean()
 
 
 def error_rate(targets, predictions):
