@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-
+from sklearn.utils import shuffle
 
 def init_weight_and_bias(M1, M2):
     W = np.random.randn(M1, M2) / np.sqrt(M1 + M2)
@@ -121,3 +121,7 @@ def crossValidation(model, X, Y, K=5):
         errors.append(err)
     print "errors:", errors
     return np.mean(errors)
+
+def splitTrainTestFromLast(X,Y,N):
+    X,Y = shuffle(X,Y)
+    return (X[-N:],Y[-N:],X[:-N],Y[:-N])

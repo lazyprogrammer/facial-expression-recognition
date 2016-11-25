@@ -1,8 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from util import getData, softmax, cost2, y2indicator, error_rate, relu
-from sklearn.utils import shuffle
+from util import getData, softmax, cost2, y2indicator, error_rate, relu,splitTrainTestFromLast
 
 
 class ANN(object):
@@ -11,10 +10,8 @@ class ANN(object):
 
     # learning rate 10e-6 is too large
     def fit(self, X, Y, learning_rate=10e-7, reg=10e-7, epochs=10000, show_fig=False):
-        X, Y = shuffle(X, Y)
-        Xvalid, Yvalid = X[-1000:], Y[-1000:]
         # Tvalid = y2indicator(Yvalid)
-        X, Y = X[:-1000], Y[:-1000]
+        Xvalid,Yvalid,X,Y = splitTrainTestFromLast(X,Y,1000)
 
         N, D = X.shape
         K = len(set(Y))
@@ -70,7 +67,7 @@ class ANN(object):
 
 def main():
     X, Y = getData()
-    
+
     model = ANN(200)
     model.fit(X, Y, reg=0, show_fig=True)
     print model.score(X, Y)
