@@ -61,13 +61,18 @@ class ANN(object):
         act = self.forward(tfX)
 
         rcost = reg*sum([tf.nn.l2_loss(p) for p in self.params])
-        cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(act, tfT)) + rcost
+        cost = tf.reduce_mean(
+            tf.nn.softmax_cross_entropy_with_logits(
+                logits=act,
+                labels=tfT
+            )
+        ) + rcost
         prediction = self.predict(tfX)
         train_op = tf.train.RMSPropOptimizer(learning_rate, decay=decay, momentum=mu).minimize(cost)
 
         n_batches = N / batch_sz
         costs = []
-        init = tf.initialize_all_variables()
+        init = tf.global_variables_initializer()
         with tf.Session() as session:
             session.run(init)
             for i in xrange(epochs):

@@ -32,7 +32,13 @@ class ConvPoolLayer(object):
     def forward(self, X):
         conv_out = tf.nn.conv2d(X, self.W, strides=[1, 1, 1, 1], padding='SAME')
         conv_out = tf.nn.bias_add(conv_out, self.b)
-        pool_out = tf.nn.max_pool(conv_out, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
+        p1, p2 = self.poolsz
+        pool_out = tf.nn.max_pool(
+            conv_out,
+            ksize=[1, p1, p2, 1],
+            strides=[1, p1, p2, 1],
+            padding='SAME'
+        )
         return tf.tanh(pool_out)
 
 
@@ -59,10 +65,10 @@ class CNN(object):
         Yvalid_flat = np.argmax(Yvalid, axis=1) # for calculating error rate
 
         # initialize convpool layers
-        N, d, d, c = X.shape
+        N, width, height, c = X.shape
         mi = c
-        outw = d
-        outh = d
+        outw = width
+        outh = height
         self.convpool_layers = []
         for mo, fw, fh in self.convpool_layer_sizes:
             layer = ConvPoolLayer(mi, mo, fw, fh)
@@ -94,19 +100,24 @@ class CNN(object):
             self.params += h.params
 
         # set up tensorflow functions and variables
-        tfX = tf.placeholder(tf.float32, shape=(None, d, d, c), name='X')
+        tfX = tf.placeholder(tf.float32, shape=(None, width, height, c), name='X')
         tfY = tf.placeholder(tf.float32, shape=(None, K), name='Y')
         act = self.forward(tfX)
 
         rcost = reg*sum([tf.nn.l2_loss(p) for p in self.params])
-        cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(act, tfY)) + rcost
+        cost = tf.reduce_mean(
+            tf.nn.softmax_cross_entropy_with_logits(
+                logits=act,
+                labels=tfY
+            )
+        ) + rcost
         prediction = self.predict(tfX)
 
         train_op = tf.train.RMSPropOptimizer(lr, decay=decay, momentum=mu).minimize(cost)
 
         n_batches = N / batch_sz
         costs = []
-        init = tf.initialize_all_variables()
+        init = tf.global_variables_initializer()
         with tf.Session() as session:
             session.run(init)
             for i in xrange(epochs):

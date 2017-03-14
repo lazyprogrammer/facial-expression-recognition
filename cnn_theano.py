@@ -53,10 +53,10 @@ class CNN(object):
         X, Y = X[:-1000], Y[:-1000]
 
         # initialize convpool layers
-        N, c, d, d = X.shape
+        N, c, width, height = X.shape
         mi = c
-        outw = d
-        outh = d
+        outw = width
+        outh = height
         self.convpool_layers = []
         for mo, fw, fh in self.convpool_layer_sizes:
             layer = ConvPoolLayer(mi, mo, fw, fh)
