@@ -68,12 +68,14 @@ class ANN(object):
         # set up theano functions and variables
         thX = T.fmatrix('X')
         thY = T.ivector('Y')
-        pY = self.forward(thX)
+        pY = self.th_forward(thX)
 
         rcost = reg*T.sum([(p*p).sum() for p in self.params])
         cost = -T.mean(T.log(pY[T.arange(thY.shape[0]), thY])) + rcost
-        prediction = self.predict(thX)
+        prediction = self.th_predict(thX)
 
+        # actual prediction function
+        self.predict_op = theano.function(inputs=[thX], outputs=prediction)
         cost_predict_op = theano.function(inputs=[thX, thY], outputs=[cost, prediction])
 
         updates = [
@@ -116,15 +118,18 @@ class ANN(object):
             plt.plot(costs)
             plt.show()
 
-    def forward(self, X):
+    def th_forward(self, X):
         Z = X
         for h in self.hidden_layers:
             Z = h.forward(Z)
         return T.nnet.softmax(Z.dot(self.W) + self.b)
 
-    def predict(self, X):
-        pY = self.forward(X)
+    def th_predict(self, X):
+        pY = self.th_forward(X)
         return T.argmax(pY, axis=1)
+
+    def predict(self, X):
+        return self.predict_op(X)
 
 
 def main():

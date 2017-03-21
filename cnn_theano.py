@@ -101,7 +101,7 @@ class CNN(object):
 
         rcost = reg*T.sum([(p*p).sum() for p in self.params])
         cost = -T.mean(T.log(pY[T.arange(thY.shape[0]), thY])) + rcost
-        prediction = self.predict(thX)
+        prediction = self.th_predict(thX)
 
         cost_predict_op = theano.function(inputs=[thX, thY], outputs=[cost, prediction])
 
@@ -154,7 +154,7 @@ class CNN(object):
             Z = h.forward(Z)
         return T.nnet.softmax(Z.dot(self.W) + self.b)
 
-    def predict(self, X):
+    def th_predict(self, X):
         pY = self.forward(X)
         return T.argmax(pY, axis=1)
 
