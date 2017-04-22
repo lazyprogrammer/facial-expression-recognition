@@ -1,3 +1,8 @@
+from __future__ import print_function, division
+from builtins import range
+# Note: you may need to update your version of future
+# sudo pip install -U future
+
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
@@ -73,8 +78,8 @@ class CNN(object):
         for mo, fw, fh in self.convpool_layer_sizes:
             layer = ConvPoolLayer(mi, mo, fw, fh)
             self.convpool_layers.append(layer)
-            outw = outw / 2
-            outh = outh / 2
+            outw = outw // 2
+            outh = outh // 2
             mi = mo
 
         # initialize mlp layers
@@ -115,14 +120,14 @@ class CNN(object):
 
         train_op = tf.train.RMSPropOptimizer(lr, decay=decay, momentum=mu).minimize(cost)
 
-        n_batches = N / batch_sz
+        n_batches = N // batch_sz
         costs = []
         init = tf.global_variables_initializer()
         with tf.Session() as session:
             session.run(init)
-            for i in xrange(epochs):
+            for i in range(epochs):
                 X, Y = shuffle(X, Y)
-                for j in xrange(n_batches):
+                for j in range(n_batches):
                     Xbatch = X[j*batch_sz:(j*batch_sz+batch_sz)]
                     Ybatch = Y[j*batch_sz:(j*batch_sz+batch_sz)]
 
@@ -134,7 +139,7 @@ class CNN(object):
 
                         p = session.run(prediction, feed_dict={tfX: Xvalid, tfY: Yvalid})
                         e = error_rate(Yvalid_flat, p)
-                        print "i:", i, "j:", j, "nb:", n_batches, "cost:", c, "error rate:", e
+                        print("i:", i, "j:", j, "nb:", n_batches, "cost:", c, "error rate:", e)
 
         if show_fig:
             plt.plot(costs)
@@ -160,7 +165,7 @@ def main():
 
     # reshape X for tf: N x w x h x c
     X = X.transpose((0, 2, 3, 1))
-    print "X.shape:", X.shape
+    print("X.shape:", X.shape)
 
     model = CNN(
         convpool_layer_sizes=[(20, 5, 5), (20, 5, 5)],

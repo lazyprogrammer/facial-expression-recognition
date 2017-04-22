@@ -1,3 +1,8 @@
+from __future__ import print_function, division
+from builtins import range, input
+# Note: you may need to update your version of future
+# sudo pip install -U future
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -9,14 +14,14 @@ def main():
     X, Y = getData(balance_ones=False)
 
     while True:
-        for i in xrange(7):
+        for i in range(7):
             x, y = X[Y==i], Y[Y==i]
             N = len(y)
             j = np.random.choice(N)
             plt.imshow(x[j].reshape(48, 48), cmap='gray')
             plt.title(label_map[y[j]])
             plt.show()
-        prompt = raw_input('Quit? Enter Y:\n')
+        prompt = input('Quit? Enter Y:\n')
         if prompt == 'Y':
             break
 

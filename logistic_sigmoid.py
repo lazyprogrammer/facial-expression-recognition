@@ -1,3 +1,8 @@
+from __future__ import print_function, division
+from builtins import range
+# Note: you may need to update your version of future
+# sudo pip install -U future
+
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.utils import shuffle
@@ -19,7 +24,7 @@ class LogisticModel(object):
 
         costs = []
         best_validation_error = 1
-        for i in xrange(epochs):
+        for i in range(epochs):
                 # forward propagation and cost calculation
                 pY = self.forward(X)
 
@@ -33,10 +38,10 @@ class LogisticModel(object):
                     c = sigmoid_cost(Yvalid, pYvalid)
                     costs.append(c)
                     e = error_rate(Yvalid, np.round(pYvalid))
-                    print "i:", i, "cost:", c, "error:", e
+                    print("i:", i, "cost:", c, "error:", e)
                     if e < best_validation_error:
                         best_validation_error = e
-        print "best_validation_error:", best_validation_error
+        print("best_validation_error:", best_validation_error)
 
         if show_fig:
             plt.plot(costs)

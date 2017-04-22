@@ -1,9 +1,14 @@
+from __future__ import print_function, division
+from builtins import range
+# Note: you may need to update your version of future
+# sudo pip install -U future
+
 import numpy as np
 import pandas as pd
 
 
 def init_weight_and_bias(M1, M2):
-    W = np.random.randn(M1, M2) / np.sqrt(M1 + M2)
+    W = np.random.randn(M1, M2) / np.sqrt(M1)
     b = np.zeros(M2)
     return W.astype(np.float32), b.astype(np.float32)
 
@@ -49,7 +54,7 @@ def y2indicator(y):
     N = len(y)
     K = len(set(y))
     ind = np.zeros((N, K))
-    for i in xrange(N):
+    for i in range(N):
         ind[i, y[i]] = 1
     return ind
 
@@ -108,9 +113,9 @@ def getBinaryData():
 def crossValidation(model, X, Y, K=5):
     # split data into K parts
     X, Y = shuffle(X, Y)
-    sz = len(Y) / K
+    sz = len(Y) // K
     errors = []
-    for k in xrange(K):
+    for k in range(K):
         xtr = np.concatenate([ X[:k*sz, :], X[(k*sz + sz):, :] ])
         ytr = np.concatenate([ Y[:k*sz], Y[(k*sz + sz):] ])
         xte = X[k*sz:(k*sz + sz), :]
@@ -119,5 +124,5 @@ def crossValidation(model, X, Y, K=5):
         model.fit(xtr, ytr)
         err = model.score(xte, yte)
         errors.append(err)
-    print "errors:", errors
+    print("errors:", errors)
     return np.mean(errors)

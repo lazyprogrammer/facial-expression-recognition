@@ -1,3 +1,8 @@
+from __future__ import print_function, division
+from builtins import range
+# Note: you may need to update your version of future
+# sudo pip install -U future
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -18,12 +23,12 @@ class LogisticModel(object):
         N, D = X.shape
         K = len(set(Y))
         T = y2indicator(Y)
-        self.W = np.random.randn(D, K) / np.sqrt(D + K)
+        self.W = np.random.randn(D, K) / np.sqrt(D)
         self.b = np.zeros(K)
 
         costs = []
         best_validation_error = 1
-        for i in xrange(epochs):
+        for i in range(epochs):
             # forward propagation and cost calculation
             pY = self.forward(X)
 
@@ -36,10 +41,10 @@ class LogisticModel(object):
                 c = cost(Tvalid, pYvalid)
                 costs.append(c)
                 e = error_rate(Yvalid, np.argmax(pYvalid, axis=1))
-                print "i:", i, "cost:", c, "error:", e
+                print("i:", i, "cost:", c, "error:", e)
                 if e < best_validation_error:
                     best_validation_error = e
-        print "best_validation_error:", best_validation_error
+        print("best_validation_error:", best_validation_error)
 
         if show_fig:
             plt.plot(costs)
@@ -63,7 +68,7 @@ def main():
     
     model = LogisticModel()
     model.fit(X, Y, show_fig=True)
-    print model.score(X, Y)
+    print(model.score(X, Y))
     # scores = cross_val_score(model, X, Y, cv=5)
     # print "score mean:", np.mean(scores), "stdev:", np.std(scores)
 

@@ -1,3 +1,8 @@
+from __future__ import print_function, division
+from builtins import range
+# Note: you may need to update your version of future
+# sudo pip install -U future
+
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.utils import shuffle
@@ -14,14 +19,14 @@ class ANN(object):
         X, Y = X[:-1000], Y[:-1000]
 
         N, D = X.shape
-        self.W1 = np.random.randn(D, self.M) / np.sqrt(D + self.M)
+        self.W1 = np.random.randn(D, self.M) / np.sqrt(D)
         self.b1 = np.zeros(self.M)
         self.W2 = np.random.randn(self.M) / np.sqrt(self.M)
         self.b2 = 0
 
         costs = []
         best_validation_error = 1
-        for i in xrange(epochs):
+        for i in range(epochs):
             # forward propagation and cost calculation
             pY, Z = self.forward(X)
 
@@ -42,10 +47,10 @@ class ANN(object):
                 c = sigmoid_cost(Yvalid, pYvalid)
                 costs.append(c)
                 e = error_rate(Yvalid, np.round(pYvalid))
-                print "i:", i, "cost:", c, "error:", e
+                print("i:", i, "cost:", c, "error:", e)
                 if e < best_validation_error:
                     best_validation_error = e
-        print "best_validation_error:", best_validation_error
+        print("best_validation_error:", best_validation_error)
 
         if show_fig:
             plt.plot(costs)

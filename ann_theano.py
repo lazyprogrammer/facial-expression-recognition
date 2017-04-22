@@ -1,3 +1,8 @@
+from __future__ import print_function, division
+from builtins import range
+# Note: you may need to update your version of future
+# sudo pip install -U future
+
 import numpy as np
 import theano
 import theano.tensor as T
@@ -98,11 +103,11 @@ class ANN(object):
             updates=updates
         )
 
-        n_batches = N / batch_sz
+        n_batches = N // batch_sz
         costs = []
-        for i in xrange(epochs):
+        for i in range(epochs):
             X, Y = shuffle(X, Y)
-            for j in xrange(n_batches):
+            for j in range(n_batches):
                 Xbatch = X[j*batch_sz:(j*batch_sz+batch_sz)]
                 Ybatch = Y[j*batch_sz:(j*batch_sz+batch_sz)]
 
@@ -112,7 +117,7 @@ class ANN(object):
                     c, p = cost_predict_op(Xvalid, Yvalid)
                     costs.append(c)
                     e = error_rate(Yvalid, p)
-                    print "i:", i, "j:", j, "nb:", n_batches, "cost:", c, "error rate:", e
+                    print("i:", i, "j:", j, "nb:", n_batches, "cost:", c, "error rate:", e)
         
         if show_fig:
             plt.plot(costs)
