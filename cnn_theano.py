@@ -10,10 +10,10 @@ import matplotlib.pyplot as plt
 
 from sklearn.utils import shuffle
 from theano.tensor.nnet import conv2d
-from theano.tensor.signal import downsample
+from theano.tensor.signal.pool import pool_2d
 
 from util import getImageData, error_rate, init_weight_and_bias, init_filter
-from ann_theano import HiddenLayer
+from ann_theano import HiddenLayer, rmsprop
 
 
 class ConvPoolLayer(object):
@@ -30,10 +30,11 @@ class ConvPoolLayer(object):
 
     def forward(self, X):
         conv_out = conv2d(input=X, filters=self.W)
-        pooled_out = downsample.max_pool_2d(
+        pooled_out = pool_2d(
             input=conv_out,
-            ds=self.poolsz,
-            ignore_border=True
+            ws=self.poolsz,
+            ignore_border=True,
+            mode='max',
         )
         return T.tanh(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
 
@@ -43,7 +44,7 @@ class CNN(object):
         self.convpool_layer_sizes = convpool_layer_sizes
         self.hidden_layer_sizes = hidden_layer_sizes
 
-    def fit(self, X, Y, lr=10e-5, mu=0.99, reg=10e-7, decay=0.99999, eps=10e-3, batch_sz=30, epochs=100, show_fig=True):
+    def fit(self, X, Y, lr=1e-3, mu=0.99, reg=1e-3, decay=0.99999, eps=1e-10, batch_sz=30, epochs=3, show_fig=True):
         lr = np.float32(lr)
         mu = np.float32(mu)
         reg = np.float32(reg)
@@ -93,12 +94,6 @@ class CNN(object):
         for h in self.hidden_layers:
             self.params += h.params
 
-        # for momentum
-        dparams = [theano.shared(np.zeros(p.get_value().shape, dtype=np.float32)) for p in self.params]
-
-        # for rmsprop
-        cache = [theano.shared(np.zeros(p.get_value().shape, dtype=np.float32)) for p in self.params]
-
         # set up theano functions and variables
         thX = T.tensor4('X', dtype='float32')
         thY = T.ivector('Y')
@@ -110,23 +105,10 @@ class CNN(object):
 
         cost_predict_op = theano.function(inputs=[thX, thY], outputs=[cost, prediction])
 
-        # updates = [
-        #     (c, decay*c + (np.float32(1)-decay)*T.grad(cost, p)*T.grad(cost, p)) for p, c in zip(self.params, cache)
-        # ] + [
-        #     (p, p + mu*dp - lr*T.grad(cost, p)/T.sqrt(c + eps)) for p, c, dp in zip(self.params, cache, dparams)
-        # ] + [
-        #     (dp, mu*dp - lr*T.grad(cost, p)/T.sqrt(c + eps)) for p, c, dp in zip(self.params, cache, dparams)
-        # ]
-
-        # momentum only
-        updates = [
-            (p, p + mu*dp - lr*T.grad(cost, p)) for p, dp in zip(self.params, dparams)
-        ] + [
-            (dp, mu*dp - lr*T.grad(cost, p)) for p, dp in zip(self.params, dparams)
-        ]
-
+        updates = rmsprop(cost, self.params, lr, mu, decay, eps)
         train_op = theano.function(
             inputs=[thX, thY],
+            outputs=cost,
             updates=updates
         )
 
@@ -138,13 +120,20 @@ class CNN(object):
                 Xbatch = X[j*batch_sz:(j*batch_sz+batch_sz)]
                 Ybatch = Y[j*batch_sz:(j*batch_sz+batch_sz)]
 
-                train_op(Xbatch, Ybatch)
+                train_c = train_op(Xbatch, Ybatch)
 
                 if j % 20 == 0:
                     c, p = cost_predict_op(Xvalid, Yvalid)
                     costs.append(c)
                     e = error_rate(Yvalid, p)
-                    print("i:", i, "j:", j, "nb:", n_batches, "cost:", c, "error rate:", e)
+                    print(
+                        "i:", i,
+                        "j:", j,
+                        "nb:", n_batches,
+                        "train cost:", train_c,
+                        "cost:", c,
+                        "error rate:", e
+                    )
 
         if show_fig:
             plt.plot(costs)

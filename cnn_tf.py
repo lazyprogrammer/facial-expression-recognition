@@ -18,7 +18,7 @@ from ann_tf import HiddenLayer
 
 
 def init_filter(shape, poolsz):
-    w = np.random.randn(*shape) / np.sqrt(np.prod(shape[:-1]) + shape[-1]*np.prod(shape[:-2] / np.prod(poolsz)))
+    w = np.random.randn(*shape) * np.sqrt(2) / np.sqrt(np.prod(shape[:-1]) + shape[-1]*np.prod(shape[:-2] / np.prod(poolsz)))
     return w.astype(np.float32)
 
 
@@ -52,7 +52,7 @@ class CNN(object):
         self.convpool_layer_sizes = convpool_layer_sizes
         self.hidden_layer_sizes = hidden_layer_sizes
 
-    def fit(self, X, Y, lr=10e-4, mu=0.99, reg=10e-4, decay=0.99999, eps=10e-3, batch_sz=30, epochs=3, show_fig=True):
+    def fit(self, X, Y, lr=1e-3, mu=0.99, reg=1e-3, decay=0.99999, eps=1e-10, batch_sz=30, epochs=3, show_fig=True):
         lr = np.float32(lr)
         mu = np.float32(mu)
         reg = np.float32(reg)

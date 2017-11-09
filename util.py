@@ -14,7 +14,7 @@ def init_weight_and_bias(M1, M2):
 
 
 def init_filter(shape, poolsz):
-    w = np.random.randn(*shape) / np.sqrt(np.prod(shape[1:]) + shape[0]*np.prod(shape[2:] / np.prod(poolsz)))
+    w = np.random.randn(*shape) * np.sqrt(2) / np.sqrt(np.prod(shape[1:]) + shape[0]*np.prod(shape[2:] / np.prod(poolsz)))
     return w.astype(np.float32)
 
 
@@ -61,7 +61,6 @@ def y2indicator(y):
 
 def getData(balance_ones=True):
     # images are 48x48 = 2304 size vectors
-    # N = 35887
     Y = []
     X = []
     first = True

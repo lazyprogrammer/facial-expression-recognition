@@ -12,6 +12,31 @@ from util import getData, getBinaryData, error_rate, relu, init_weight_and_bias
 from sklearn.utils import shuffle
 
 
+
+def rmsprop(cost, params, lr, mu, decay, eps):
+    grads = T.grad(cost, params)
+    updates = []
+    for p, g in zip(params, grads):
+        # cache
+        ones = np.ones_like(p.get_value(), dtype=np.float32)
+        c = theano.shared(ones)
+        new_c = decay*c + (np.float32(1.0) - decay)*g*g
+
+        # momentum
+        zeros = np.zeros_like(p.get_value(), dtype=np.float32)
+        m = theano.shared(zeros)
+        new_m = mu*m - lr*g / T.sqrt(new_c + eps)
+
+        # param update
+        new_p = p + new_m
+
+        # append the updates
+        updates.append((c, new_c))
+        updates.append((m, new_m))
+        updates.append((p, new_p))
+    return updates
+
+
 class HiddenLayer(object):
     def __init__(self, M1, M2, an_id):
         self.id = an_id
@@ -30,7 +55,7 @@ class ANN(object):
     def __init__(self, hidden_layer_sizes):
         self.hidden_layer_sizes = hidden_layer_sizes
 
-    def fit(self, X, Y, learning_rate=10e-7, mu=0.99, decay=0.999, reg=10e-12, eps=10e-10, epochs=400, batch_sz=100, show_fig=False):
+    def fit(self, X, Y, learning_rate=1e-3, mu=0.9, decay=0.9, reg=0, eps=1e-10, epochs=100, batch_sz=30, show_fig=False):
         learning_rate = np.float32(learning_rate)
         mu = np.float32(mu)
         decay = np.float32(decay)
@@ -64,12 +89,6 @@ class ANN(object):
         for h in self.hidden_layers:
             self.params += h.params
 
-        # for momentum
-        dparams = [theano.shared(np.zeros(p.get_value().shape, dtype=np.float32)) for p in self.params]
-
-        # for rmsprop
-        cache = [theano.shared(np.zeros(p.get_value().shape, dtype=np.float32)) for p in self.params]
-
         # set up theano functions and variables
         thX = T.fmatrix('X')
         thY = T.ivector('Y')
@@ -83,21 +102,7 @@ class ANN(object):
         self.predict_op = theano.function(inputs=[thX], outputs=prediction)
         cost_predict_op = theano.function(inputs=[thX, thY], outputs=[cost, prediction])
 
-        updates = [
-            (c, decay*c + (np.float32(1)-decay)*T.grad(cost, p)*T.grad(cost, p)) for p, c in zip(self.params, cache)
-        ] + [
-            (p, p + mu*dp - learning_rate*T.grad(cost, p)/T.sqrt(c + eps)) for p, c, dp in zip(self.params, cache, dparams)
-        ] + [
-            (dp, mu*dp - learning_rate*T.grad(cost, p)/T.sqrt(c + eps)) for p, c, dp in zip(self.params, cache, dparams)
-        ]
-
-        # momentum only
-        # updates = [
-        #     (p, p + mu*dp - learning_rate*T.grad(cost, p)) for p, dp in zip(self.params, dparams)
-        # ] + [
-        #     (dp, mu*dp - learning_rate*T.grad(cost, p)) for p, dp in zip(self.params, dparams)
-        # ]
-
+        updates = rmsprop(cost, self.params, learning_rate, mu, decay, eps)
         train_op = theano.function(
             inputs=[thX, thY],
             updates=updates
