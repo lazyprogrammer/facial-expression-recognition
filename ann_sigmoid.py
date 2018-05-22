@@ -13,7 +13,7 @@ class ANN(object):
     def __init__(self, M):
         self.M = M
 
-    def fit(self, X, Y, learning_rate=5*10e-7, reg=1.0, epochs=10000, show_fig=False):
+    def fit(self, X, Y, learning_rate=5e-6, reg=1.0, epochs=10000, show_fig=False):
         X, Y = shuffle(X, Y)
         Xvalid, Yvalid = X[-1000:], Y[-1000:]
         X, Y = X[:-1000], Y[:-1000]

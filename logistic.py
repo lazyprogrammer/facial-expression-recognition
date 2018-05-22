@@ -14,7 +14,7 @@ class LogisticModel(object):
     def __init__(self):
         pass
 
-    def fit(self, X, Y, learning_rate=10e-8, reg=10e-12, epochs=10000, show_fig=False):
+    def fit(self, X, Y, learning_rate=1e-7, reg=0., epochs=10000, show_fig=False):
         X, Y = shuffle(X, Y)
         Xvalid, Yvalid = X[-1000:], Y[-1000:]
         Tvalid = y2indicator(Yvalid)

@@ -14,8 +14,7 @@ class ANN(object):
     def __init__(self, M):
         self.M = M
 
-    # learning rate 10e-6 is too large
-    def fit(self, X, Y, learning_rate=10e-7, reg=10e-7, epochs=10000, show_fig=False):
+    def fit(self, X, Y, learning_rate=1e-6, reg=1e-6, epochs=10000, show_fig=False):
         X, Y = shuffle(X, Y)
         Xvalid, Yvalid = X[-1000:], Y[-1000:]
         # Tvalid = y2indicator(Yvalid)

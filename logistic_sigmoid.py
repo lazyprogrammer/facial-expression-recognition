@@ -13,7 +13,7 @@ class LogisticModel(object):
     def __init__(self):
         pass
 
-    def fit(self, X, Y, learning_rate=10e-7, reg=0*10e-22, epochs=120000, show_fig=False):
+    def fit(self, X, Y, learning_rate=1e-6, reg=0., epochs=120000, show_fig=False):
         X, Y = shuffle(X, Y)
         Xvalid, Yvalid = X[-1000:], Y[-1000:]
         X, Y = X[:-1000], Y[:-1000]
@@ -69,10 +69,6 @@ def main():
     X1 = np.repeat(X1, 9, axis=0)
     X = np.vstack([X0, X1])
     Y = np.array([0]*len(X0) + [1]*len(X1))
-
-    # N, D = X.shape
-    # print "N:", N
-    # print "p(Y=0):", np.sum(Y == 0) / float(N), "p(Y=1):", np.sum(Y == 1) / float(N)
     
     model = LogisticModel()
     model.fit(X, Y, show_fig=True)
