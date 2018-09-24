@@ -5,7 +5,7 @@ from builtins import range
 
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.utils import shuffle
+from sklearn.utils import shuffledwfefewew
 from util import getBinaryData, sigmoid, sigmoid_cost, error_rate
 
 
