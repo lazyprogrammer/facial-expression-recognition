@@ -55,19 +55,18 @@ class ANN(object):
     def __init__(self, hidden_layer_sizes):
         self.hidden_layer_sizes = hidden_layer_sizes
 
-    def fit(self, X, Y, learning_rate=1e-3, mu=0.9, decay=0.9, reg=0, eps=1e-10, epochs=100, batch_sz=30, show_fig=False):
+    def fit(self, X, Y, Xvalid, Yvalid, learning_rate=1e-2, mu=0.99, decay=0.999, reg=1e-3, eps=1e-8, epochs=10, batch_sz=100, show_fig=False):
+        # downcast
         learning_rate = np.float32(learning_rate)
         mu = np.float32(mu)
         decay = np.float32(decay)
         reg = np.float32(reg)
         eps = np.float32(eps)
 
-        # make a validation set
-        X, Y = shuffle(X, Y)
         X = X.astype(np.float32)
+        Xvalid = Xvalid.astype(np.float32)
         Y = Y.astype(np.int32)
-        Xvalid, Yvalid = X[-1000:], Y[-1000:]
-        X, Y = X[:-1000], Y[:-1000]
+        Yvalid = Yvalid.astype(np.int32)
 
         # initialize hidden layers
         N, D = X.shape
@@ -143,10 +142,9 @@ class ANN(object):
 
 
 def main():
-    X, Y = getData()
-    # X, Y = getBinaryData()
-    model = ANN([2000, 1000])
-    model.fit(X, Y, show_fig=True)
+    Xtrain, Ytrain, Xvalid, Yvalid = getData()
+    model = ANN([2000, 1000, 500])
+    model.fit(Xtrain, Ytrain, Xvalid, Yvalid, show_fig=True)
 
 if __name__ == '__main__':
     main()

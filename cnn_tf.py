@@ -44,7 +44,7 @@ class ConvPoolLayer(object):
             strides=[1, p1, p2, 1],
             padding='SAME'
         )
-        return tf.tanh(pool_out)
+        return tf.nn.relu(pool_out)
 
 
 class CNN(object):
@@ -52,7 +52,7 @@ class CNN(object):
         self.convpool_layer_sizes = convpool_layer_sizes
         self.hidden_layer_sizes = hidden_layer_sizes
 
-    def fit(self, X, Y, lr=1e-3, mu=0.99, reg=1e-3, decay=0.99999, eps=1e-10, batch_sz=30, epochs=3, show_fig=True):
+    def fit(self, X, Y, Xvalid, Yvalid, lr=1e-2, mu=0.9, reg=1e-3, decay=0.99999, eps=1e-10, batch_sz=30, epochs=5, show_fig=True):
         lr = np.float32(lr)
         mu = np.float32(mu)
         reg = np.float32(reg)
@@ -65,8 +65,7 @@ class CNN(object):
         X = X.astype(np.float32)
         Y = y2indicator(Y).astype(np.float32)
 
-        Xvalid, Yvalid = X[-1000:], Y[-1000:]
-        X, Y = X[:-1000], Y[:-1000]
+        Yvalid = y2indicator(Yvalid).astype(np.float32)
         Yvalid_flat = np.argmax(Yvalid, axis=1) # for calculating error rate
 
         # initialize convpool layers
@@ -161,17 +160,17 @@ class CNN(object):
 
 
 def main():
-    X, Y = getImageData()
+    Xtrain, Ytrain, Xvalid, Yvalid = getImageData()
 
-    # reshape X for tf: N x w x h x c
-    X = X.transpose((0, 2, 3, 1))
-    print("X.shape:", X.shape)
+    # reshape X for tf: N x H x W x C
+    Xtrain = Xtrain.transpose((0, 2, 3, 1))
+    Xvalid = Xvalid.transpose((0, 2, 3, 1))
 
     model = CNN(
         convpool_layer_sizes=[(20, 5, 5), (20, 5, 5)],
         hidden_layer_sizes=[500, 300],
     )
-    model.fit(X, Y)
+    model.fit(Xtrain, Ytrain, Xvalid, Yvalid)
 
 if __name__ == '__main__':
     main()

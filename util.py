@@ -5,6 +5,7 @@ from builtins import range
 
 import numpy as np
 import pandas as pd
+from sklearn.utils import shuffle
 
 
 def init_weight_and_bias(M1, M2):
@@ -59,7 +60,7 @@ def y2indicator(y):
     return ind
 
 
-def getData(balance_ones=True):
+def getData(balance_ones=True, Ntest=1000):
     # images are 48x48 = 2304 size vectors
     Y = []
     X = []
@@ -74,23 +75,29 @@ def getData(balance_ones=True):
 
     X, Y = np.array(X) / 255.0, np.array(Y)
 
+    # shuffle and split
+    X, Y = shuffle(X, Y)
+    Xtrain, Ytrain = X[:-Ntest], Y[:-Ntest]
+    Xvalid, Yvalid = X[-Ntest:], Y[-Ntest:]
+
     if balance_ones:
         # balance the 1 class
-        X0, Y0 = X[Y!=1, :], Y[Y!=1]
-        X1 = X[Y==1, :]
+        X0, Y0 = Xtrain[Ytrain!=1, :], Ytrain[Ytrain!=1]
+        X1 = Xtrain[Ytrain==1, :]
         X1 = np.repeat(X1, 9, axis=0)
-        X = np.vstack([X0, X1])
-        Y = np.concatenate((Y0, [1]*len(X1)))
+        Xtrain = np.vstack([X0, X1])
+        Ytrain = np.concatenate((Y0, [1]*len(X1)))
 
-    return X, Y
+    return Xtrain, Ytrain, Xvalid, Yvalid
 
 
 def getImageData():
-    X, Y = getData()
-    N, D = X.shape
+    Xtrain, Ytrain, Xvalid, Yvalid = getData()
+    N, D = Xtrain.shape
     d = int(np.sqrt(D))
-    X = X.reshape(N, 1, d, d)
-    return X, Y
+    Xtrain = Xtrain.reshape(-1, 1, d, d)
+    Xvalid = Xvalid.reshape(-1, 1, d, d)
+    return Xtrain, Ytrain, Xvalid, Yvalid
 
 
 def getBinaryData():

@@ -28,17 +28,17 @@ class ANN(object):
     def __init__(self, hidden_layer_sizes):
         self.hidden_layer_sizes = hidden_layer_sizes
 
-    def fit(self, X, Y, learning_rate=1e-2, mu=0.99, decay=0.999, reg=1e-3, epochs=10, batch_sz=100, show_fig=False):
+    def fit(self, X, Y, Xvalid, Yvalid, learning_rate=1e-2, mu=0.99, decay=0.999, reg=1e-3, epochs=10, batch_sz=100, show_fig=False):
         K = len(set(Y)) # won't work later b/c we turn it into indicator
 
         # make a validation set
         X, Y = shuffle(X, Y)
         X = X.astype(np.float32)
         Y = y2indicator(Y).astype(np.float32)
-        # Y = Y.astype(np.int32)
-        Xvalid, Yvalid = X[-1000:], Y[-1000:]
-        Yvalid_flat = np.argmax(Yvalid, axis=1) # for calculating error rate
-        X, Y = X[:-1000], Y[:-1000]
+
+        # for calculating error rate
+        Yvalid_flat = Yvalid
+        Yvalid = y2indicator(Yvalid).astype(np.float32)
 
         # initialize hidden layers
         N, D = X.shape
@@ -112,10 +112,9 @@ class ANN(object):
 
 
 def main():
-    X, Y = getData()
-    # X, Y = getBinaryData()
+    Xtrain, Ytrain, Xvalid, Yvalid = getData()
     model = ANN([2000, 1000, 500])
-    model.fit(X, Y, show_fig=True)
+    model.fit(Xtrain, Ytrain, Xvalid, Yvalid, show_fig=True)
 
 if __name__ == '__main__':
     main()

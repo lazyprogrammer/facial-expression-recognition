@@ -14,11 +14,8 @@ class LogisticModel(object):
     def __init__(self):
         pass
 
-    def fit(self, X, Y, learning_rate=1e-7, reg=0., epochs=10000, show_fig=False):
-        X, Y = shuffle(X, Y)
-        Xvalid, Yvalid = X[-1000:], Y[-1000:]
+    def fit(self, X, Y, Xvalid, Yvalid, learning_rate=1e-7, reg=0., epochs=10000, show_fig=False):
         Tvalid = y2indicator(Yvalid)
-        X, Y = X[:-1000], Y[:-1000]
 
         N, D = X.shape
         K = len(set(Y))
@@ -64,13 +61,11 @@ class LogisticModel(object):
 
 
 def main():
-    X, Y = getData()
+    Xtrain, Ytrain, Xvalid, Yvalid = getData()
     
     model = LogisticModel()
-    model.fit(X, Y, show_fig=True)
-    print(model.score(X, Y))
-    # scores = cross_val_score(model, X, Y, cv=5)
-    # print "score mean:", np.mean(scores), "stdev:", np.std(scores)
+    model.fit(Xtrain, Ytrain, Xvalid, Yvalid, show_fig=True)
+    print(model.score(Xvalid, Yvalid))
 
 if __name__ == '__main__':
     main()
