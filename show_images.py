@@ -11,7 +11,7 @@ from util import getData
 label_map = ['Anger', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
 
 def main():
-    X, Y = getData(balance_ones=False)
+    X, Y, _, _ = getData(balance_ones=False)
 
     while True:
         for i in range(7):
@@ -22,7 +22,7 @@ def main():
             plt.title(label_map[y[j]])
             plt.show()
         prompt = input('Quit? Enter Y:\n')
-        if prompt == 'Y':
+        if prompt.lower().startswith('y'):
             break
 
 
