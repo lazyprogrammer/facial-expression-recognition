@@ -8,3 +8,7 @@ https://www.udemy.com/deep-learning-convolutional-neural-networks-theano-tensorf
 Data:
 
 https://www.kaggle.com/c/challenges-in-representation-learning-facial-expression-recognition-challenge
+
+If you get "An error occurred: Data not found":
+
+https://lazyprogrammer.me/course_files/fer2013.csv
