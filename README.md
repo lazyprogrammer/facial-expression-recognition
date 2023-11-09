@@ -11,4 +11,4 @@ https://www.kaggle.com/c/challenges-in-representation-learning-facial-expression
 
 If you get "An error occurred: Data not found":
 
-https://lazyprogrammer.me/course_files/fer2013.csv
+https://archive.org/download/fer2013_202311/fer2013.csv
